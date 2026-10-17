@@ -116,8 +116,8 @@ unset($_SESSION['flash']);
 <body class="auth-page">
 <header class="topbar">
     <a class="brand" href="auth.php" aria-label="eMuranga home">
-        <span class="brand-mark"><span></span><span></span><span></span></span>
-        <span>e<span class="brand-light">Muranga</span><small>COUNTY SERVICES</small></span>
+        <img class="brand-logo" src="assets/logo.png" alt="Murang'a County Government">
+        <span>eMuranga<small>COMMUNITY SERVICE DESK</small></span>
     </a>
     <a class="help-link" href="auth.php?mode=<?= $isSignup ? 'login' : 'signup' ?>">
         <?= $isSignup ? 'Already registered? Sign in' : 'New here? Create account' ?>
@@ -171,7 +171,7 @@ unset($_SESSION['flash']);
     </section>
 </main>
 <footer id="about">
-    <a class="brand footer-brand" href="auth.php"><span class="brand-mark"><span></span><span></span><span></span></span><span>e<span class="brand-light">Muranga</span><small>COUNTY SERVICES</small></span></a>
+    <a class="brand footer-brand" href="auth.php"><img class="brand-logo" src="assets/logo.png" alt=""><span>eMuranga<small>COMMUNITY SERVICE DESK</small></span></a>
     <p>Independent public-service demo; not an official county website.</p>
     <span class="footer-credit">Made by <strong>Alex Kamau</strong> <span>·</span> Internship project</span>
 </footer>

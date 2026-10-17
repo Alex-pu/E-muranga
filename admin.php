@@ -85,8 +85,8 @@ try {
 <body>
 <header class="topbar">
     <a class="brand" href="admin.php" aria-label="eMuranga staff dashboard">
-        <span class="brand-mark"><span></span><span></span><span></span></span>
-        <span>e<span class="brand-light">Muranga</span><small>STAFF SERVICE DESK</small></span>
+        <img class="brand-logo" src="assets/logo.png" alt="Murang'a County Government">
+        <span>eMuranga<small>STAFF SERVICE DESK</small></span>
     </a>
     <nav class="desktop-nav" aria-label="Staff navigation"><a class="active" href="#cases">All reports</a><a href="#activity">Activity</a></nav>
     <div class="account-nav">
@@ -191,7 +191,7 @@ try {
     </section>
 </main>
 <footer id="about">
-    <a class="brand footer-brand" href="admin.php"><span class="brand-mark"><span></span><span></span><span></span></span><span>e<span class="brand-light">Muranga</span><small>STAFF SERVICE DESK</small></span></a>
+    <a class="brand footer-brand" href="admin.php"><img class="brand-logo" src="assets/logo.png" alt=""><span>eMuranga<small>STAFF SERVICE DESK</small></span></a>
     <p>Staff dashboard · independent internship demo.</p>
     <span class="footer-credit">Made by <strong>Alex Kamau</strong> <span>·</span> Internship project</span>
 </footer>

@@ -9,6 +9,7 @@ I built this PHP and PostgreSQL app as a community service-request demo.
 - Track requests through Pending, In Progress, and Resolved.
 - Staff dashboard with filters, analytics, and status-change history.
 - Emergency-call UI mockup for a proposed free internet call without airtime. It does not place calls or connect to emergency services.
+- County logo and community, roads, and water imagery in `assets/`.
 
 ## Install and run
 

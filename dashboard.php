@@ -55,8 +55,8 @@ $csrfToken = csrfToken();
 <body>
 <header class="topbar">
     <a class="brand" href="dashboard.php" aria-label="eMuranga dashboard">
-        <span class="brand-mark"><span></span><span></span><span></span></span>
-        <span>e<span class="brand-light">Muranga</span><small>PUBLIC SERVICE DESK</small></span>
+        <img class="brand-logo" src="assets/logo.png" alt="Murang'a County Government">
+        <span>eMuranga<small>PUBLIC SERVICE DESK</small></span>
     </a>
     <nav class="desktop-nav" aria-label="Main navigation">
         <a class="active" href="#new-request">Report an issue</a>
@@ -106,7 +106,18 @@ $csrfToken = csrfToken();
         </div>
         <div class="service-grid category-grid">
             <?php foreach (requestCategoryDetails() as $category => $details): ?>
-                <a class="service-card category-card" href="#new-request" data-category="<?= escape($category) ?>">
+                <?php
+                $categoryImage = match ($category) {
+                    'Water supply' => 'assets/water.jpg',
+                    'Roads and drainage' => 'assets/roads.jpg',
+                    'Public health' => 'assets/community.jpg',
+                    default => null,
+                };
+                ?>
+                <a class="service-card category-card<?= $categoryImage !== null ? ' has-image' : '' ?>" href="#new-request" data-category="<?= escape($category) ?>">
+                    <?php if ($categoryImage !== null): ?>
+                        <img class="category-image" src="<?= escape($categoryImage) ?>" alt="" loading="lazy">
+                    <?php endif; ?>
                     <span class="service-icon"><?= escape($details['icon']) ?></span>
                     <span class="service-title"><?= escape($category) ?></span>
                     <span class="service-description"><?= escape($details['description']) ?></span>
@@ -168,7 +179,7 @@ $csrfToken = csrfToken();
     </section>
 </main>
 <footer id="about">
-    <a class="brand footer-brand" href="dashboard.php"><span class="brand-mark"><span></span><span></span><span></span></span><span>e<span class="brand-light">Muranga</span><small>PUBLIC SERVICE DESK</small></span></a>
+    <a class="brand footer-brand" href="dashboard.php"><img class="brand-logo" src="assets/logo.png" alt=""><span>eMuranga<small>PUBLIC SERVICE DESK</small></span></a>
     <p>Independent community service demo; not an official county website.</p>
     <span class="footer-credit">Made by <strong>Alex Kamau</strong> <span>·</span> Internship project</span>
 </footer>
