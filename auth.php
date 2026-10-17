@@ -15,6 +15,7 @@ $error = null;
 $name = '';
 $email = '';
 $phone = '';
+$emergencyPhone = emergencyPhoneNumber();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mode = (string) ($_POST['mode'] ?? $mode);
@@ -133,6 +134,10 @@ unset($_SESSION['flash']);
             <div><span>✓</span> Attach a photo and precise location</div>
             <div><span>✓</span> Track your report status</div>
         </div>
+        <?php if ($emergencyPhone !== null): ?>
+            <a class="emergency-call" href="tel:<?= escape($emergencyPhone) ?>">Call test number · <?= escape($emergencyPhone) ?></a>
+            <p class="emergency-note">Test call only — this is not an emergency service. A normal call may use airtime; VoIP uses internet data and charges depend on your provider and plan.</p>
+        <?php endif; ?>
     </section>
     <section class="auth-card">
         <div class="section-kicker">YOUR COMMUNITY SERVICE DESK</div>

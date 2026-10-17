@@ -58,6 +58,20 @@ function escape(string $value): string
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+function emergencyPhoneNumber(): ?string
+{
+    $phone = getenv('EMERGENCY_PHONE');
+    if ($phone === false || $phone === '') {
+        return null;
+    }
+
+    if (!preg_match('/\A(?:\+[1-9][0-9]{6,14}|[0-9]{3,15})\z/D', $phone)) {
+        throw new RuntimeException('EMERGENCY_PHONE must be a verified phone number using digits and an optional leading +.');
+    }
+
+    return $phone;
+}
+
 function csrfToken(): string
 {
     return $_SESSION['csrf_token'] ??= bin2hex(random_bytes(32));
