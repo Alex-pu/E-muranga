@@ -189,9 +189,15 @@ footer > p { margin: 0 auto 0 0; color: #89968e; font-size: 10px; }
 .auth-welcome > p { max-width: 370px; color: #718078; font-size: 14px; line-height: 1.8; }
 .auth-benefits { margin-top: 31px; display: grid; gap: 13px; color: #64746b; font-size: 12px; }
 .auth-benefits span { width: 19px; height: 19px; margin-right: 8px; display: inline-grid; place-items: center; border-radius: 50%; background: #e9f2e9; color: #4e7d5e; font-size: 10px; }
-.emergency-call { display: inline-flex; min-height: 38px; align-items: center; margin-top: 18px; padding: 0 13px; border: 1px solid #f0d0c8; border-radius: 6px; background: #fff6f3; color: #9a3427; font-size: 12px; font-weight: 700; }
-.emergency-call:hover { background: #ffede8; }
-.emergency-note { max-width: 380px; margin: 7px 0 0; color: #8b7771; font-size: 10px; line-height: 1.5; }
+.emergency-call-mockup { width: fit-content; min-height: 54px; margin-top: 20px; padding: 9px 15px 9px 10px; display: inline-flex; align-items: center; gap: 11px; border: 1px solid #f2a0a3; border-radius: 999px; background: linear-gradient(110deg, #c91f32, #981b2b); color: white; box-shadow: 0 0 0 0 #cf26364f; animation: emergency-pulse 1.8s ease-out infinite; }
+.emergency-call-icon { width: 33px; height: 33px; display: grid; flex: 0 0 auto; place-items: center; border: 1px solid #ffffff75; border-radius: 50%; background: #ffffff24; font: 800 19px Manrope, sans-serif; }
+.emergency-call-copy strong,.emergency-call-copy small { display: block; }
+.emergency-call-copy strong { font: 800 12px Manrope, sans-serif; letter-spacing: .15px; }
+.emergency-call-copy small { margin-top: 3px; color: #ffe3e3; font-size: 9px; }
+.emergency-call-badge { padding: 4px 6px; border: 1px solid #ffffff8a; border-radius: 999px; color: white; font-size: 8px; font-weight: 800; letter-spacing: .6px; }
+.emergency-note { max-width: 380px; margin: 8px 0 0; color: #8b7771; font-size: 10px; line-height: 1.5; }
+@keyframes emergency-pulse { 0% { box-shadow: 0 0 0 0 #cf26364f; } 70% { box-shadow: 0 0 0 9px #cf263600; } 100% { box-shadow: 0 0 0 0 #cf263600; } }
+@media (prefers-reduced-motion: reduce) { .emergency-call-mockup { animation: none; } }
 .auth-card { padding: 30px; border: 1px solid var(--line); border-radius: 10px; background: white; box-shadow: 0 14px 40px #27442e0b; }
 .auth-card h2 { margin: 8px 0 0; font-size: 24px; letter-spacing: -.8px; }
 .auth-card .form-intro { margin-bottom: 20px; }

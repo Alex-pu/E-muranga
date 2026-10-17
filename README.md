@@ -8,7 +8,7 @@ I built this PHP and PostgreSQL app as a community service-request demo.
 - Report a local issue with its category, location, description, and optional photo.
 - Track requests through Pending, In Progress, and Resolved.
 - Staff dashboard with filters, analytics, and status-change history.
-- Optional test-call link that opens the device phone or VoIP app. It is not an emergency service.
+- Emergency-call UI mockup for a proposed free internet call without airtime. It does not place calls or connect to emergency services.
 
 ## Install and run
 
@@ -28,7 +28,7 @@ sudo -u postgres createuser --pwprompt emuranga_app
 sudo -u postgres createdb --owner=emuranga_app emuranga
 ```
 
-Create `/etc/emuranga/app.env` with the database connection and optional test-call number:
+Create `/etc/emuranga/app.env` with the database connection:
 
 ```ini
 PGHOST=127.0.0.1
@@ -37,10 +37,9 @@ PGDATABASE=emuranga
 PGUSER=emuranga_app
 PGPASSWORD=your-database-password
 UPLOAD_DIR=/var/lib/emuranga/uploads
-EMERGENCY_PHONE=0700000000
 ```
 
-Replace the example password and phone number. Leave `EMERGENCY_PHONE` unset to hide the test-call link. Keep this file outside the web root and restrict its permissions.
+Replace the example password. Keep this file outside the web root and restrict its permissions.
 
 Clone and initialize the app:
 

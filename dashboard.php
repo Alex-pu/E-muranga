@@ -8,7 +8,6 @@ if (($user['role'] ?? 'citizen') === 'admin') {
     header('Location: admin.php');
     exit;
 }
-$emergencyPhone = emergencyPhoneNumber();
 
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
@@ -79,10 +78,12 @@ $csrfToken = csrfToken();
             <div class="eyebrow"><span class="live-dot"></span> MURANG'A COUNTY · COMMUNITY SERVICE DESK</div>
             <h1>Let’s make things <span>better.</span></h1>
             <p>Report a local issue. Track it from submission to resolution.</p>
-            <?php if ($emergencyPhone !== null): ?>
-                <a class="emergency-call" href="tel:<?= escape($emergencyPhone) ?>">Call test number · <?= escape($emergencyPhone) ?></a>
-                <p class="emergency-note">Test call only — this is not an emergency service. A normal call may use airtime; VoIP uses internet data and charges depend on your provider and plan.</p>
-            <?php endif; ?>
+            <div class="emergency-call-mockup" role="note" aria-label="Emergency call mockup: proposed free internet call without airtime">
+                <span class="emergency-call-icon" aria-hidden="true">!</span>
+                <span class="emergency-call-copy"><strong>Emergency? Get help</strong><small>Proposed free internet call · no airtime</small></span>
+                <span class="emergency-call-badge">MOCKUP</span>
+            </div>
+            <p class="emergency-note">Concept only — no call is placed and no emergency service is connected.</p>
         </div>
         <a class="primary-button" href="#new-request">Report an issue <span>→</span></a>
     </section>
