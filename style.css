@@ -190,7 +190,10 @@ footer > p { margin: 0 auto 0 0; color: #89968e; font-size: 10px; }
 .dashboard-notice + .dashboard-notice { margin-top: 8px; }
 .auth-page { min-height: 100vh; background: #fbfcfa; }
 .auth-layout { width: min(1050px, 87.2%); min-height: calc(100vh - 166px); margin: 0 auto; padding: 55px 0; display: grid; grid-template-columns: 1fr 410px; align-items: center; gap: 70px; }
-.auth-welcome { min-height: 475px; padding: 34px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; border-radius: 14px; background: linear-gradient(90deg, #102f2be8 0%, #15382fc9 55%, #17392b48 100%), url("assets/login.jpg") center 48% / cover; box-shadow: 0 18px 46px #102e251f; }
+.auth-welcome { position: relative; isolation: isolate; overflow: hidden; min-height: 475px; padding: 34px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; border-radius: 14px; background: #17392b; box-shadow: 0 18px 46px #102e251f; }
+.auth-background-image { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 48%; }
+.auth-welcome::before { position: absolute; z-index: -1; inset: 0; content: ""; background: linear-gradient(90deg, #102f2be8 0%, #15382fc9 55%, #17392b48 100%); }
+.auth-welcome > :not(.auth-background-image) { position: relative; z-index: 1; }
 .auth-welcome .eyebrow,.auth-welcome > p { color: #e0ece3; }
 .auth-welcome h1 { margin: 22px 0 13px; color: #fff; font-size: clamp(42px, 5vw, 57px); }
 .auth-welcome h1 span { color: #b9dfbd; }
@@ -203,7 +206,7 @@ footer > p { margin: 0 auto 0 0; color: #89968e; font-size: 10px; }
 .emergency-call-copy strong { font: 800 12px Manrope, sans-serif; letter-spacing: .15px; }
 .emergency-call-copy small { margin-top: 3px; color: #ffe3e3; font-size: 9px; }
 .emergency-call-badge { padding: 4px 6px; border: 1px solid #ffffff8a; border-radius: 999px; color: white; font-size: 8px; font-weight: 800; letter-spacing: .6px; }
-.emergency-note { max-width: 380px; margin: 8px 0 0; color: #ffe9e5; font-size: 10px; line-height: 1.5; }
+.auth-welcome .emergency-note { max-width: 380px; margin: 8px 0 0; color: #ffe9e5; font-size: 10px; line-height: 1.5; }
 @keyframes emergency-pulse { 0% { box-shadow: 0 0 0 0 #cf26364f; } 70% { box-shadow: 0 0 0 9px #cf263600; } 100% { box-shadow: 0 0 0 0 #cf263600; } }
 @media (prefers-reduced-motion: reduce) { .emergency-call-mockup { animation: none; } }
 .auth-card { padding: 30px; border: 1px solid var(--line); border-radius: 10px; background: white; box-shadow: 0 14px 40px #27442e0b; }

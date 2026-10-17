@@ -111,7 +111,7 @@ unset($_SESSION['flash']);
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20261017-2">
 </head>
 <body class="auth-page">
 <header class="topbar">
@@ -125,6 +125,7 @@ unset($_SESSION['flash']);
 </header>
 <main class="auth-layout">
     <section class="auth-welcome">
+        <img class="auth-background-image" src="assets/login.jpg" alt="">
         <div class="eyebrow"><span class="live-dot"></span> MURANG'A COUNTY · COMMUNITY SERVICE DESK</div>
         <h1>Speak up for<br>your <span>community.</span></h1>
         <p>Report a local issue and follow it from the first update to resolution.</p>
@@ -173,7 +174,7 @@ unset($_SESSION['flash']);
 <footer id="about">
     <a class="brand footer-brand" href="auth.php"><img class="brand-logo" src="assets/logo.png" alt=""><span>eMuranga<small>COMMUNITY SERVICE DESK</small></span></a>
     <p>Independent public-service demo; not an official county website.</p>
-    <span class="footer-credit">Made by <strong>Alex Kamau</strong> <span>·</span> Internship project</span>
+    <span class="footer-credit">Made by <strong>Alex Kamau</strong></span>
 </footer>
 </body>
 </html>
