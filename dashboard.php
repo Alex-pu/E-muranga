@@ -108,6 +108,7 @@ $csrfToken = csrfToken();
             <?php foreach (requestCategoryDetails() as $category => $details): ?>
                 <?php
                 $categoryImage = match ($category) {
+                    'Streetlight' => 'assets/streetlight.jpg',
                     'Water supply' => 'assets/water.jpg',
                     'Roads and drainage' => 'assets/roads.jpg',
                     'Public health' => 'assets/community.jpg',
