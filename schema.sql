@@ -1,0 +1,24 @@
+CREATE TABLE IF NOT EXISTS app_users (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    full_name VARCHAR(120) NOT NULL,
+    email VARCHAR(254) NOT NULL UNIQUE,
+    phone VARCHAR(30) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS service_requests (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    reference_code VARCHAR(20) NOT NULL UNIQUE,
+    user_id BIGINT REFERENCES app_users(id) ON DELETE CASCADE,
+    full_name VARCHAR(120) NOT NULL,
+    national_id VARCHAR(30) NOT NULL DEFAULT '',
+    phone VARCHAR(30) NOT NULL,
+    service_name VARCHAR(100) NOT NULL,
+    notes TEXT NOT NULL DEFAULT '',
+    status VARCHAR(20) NOT NULL DEFAULT 'Received',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS service_requests_user_created_idx
+    ON service_requests (user_id, created_at DESC);
