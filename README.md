@@ -2,26 +2,36 @@
 
 A small PHP and PostgreSQL account portal for a Murang'a County internship demo. Visitors can sign up, log in, choose from six county-service concepts, submit requests and see their own request history. This is an independent project concept, not an official county or eCitizen website.
 
-## Run locally
+## Deploy on a Linux server
 
-Requirements: PHP 8.1+ with `pdo_pgsql` enabled, and a PostgreSQL database (Neon works).
+Requirements: PHP 8.1+ with `pdo_pgsql` enabled, Git, and a Neon PostgreSQL database.
 
-1. In PowerShell, set your Neon connection URL for the current terminal. Paste the **rotated** Neon URL between the quotes; don't put the database password in a source file:
+1. Install PHP and the PostgreSQL driver. On Ubuntu/Debian:
 
-   ```powershell
-   $env:DATABASE_URL = "postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
+   ```bash
+   sudo apt update
+   sudo apt install git php php-pgsql
    ```
 
-2. From this folder, start PHP's built-in server:
+2. Clone the app:
 
-   ```powershell
-   php -S localhost:8000
+   ```bash
+   cd /var/www
+   sudo git clone https://github.com/Alex-pu/E-muranga.git
+   cd E-muranga
    ```
 
-3. Open <http://localhost:8000> and create a demo account.
+3. For a quick local test, set the **rotated** Neon URL in the shell and start PHP:
 
-The app creates the account and service-request tables on first use and adds the account link to an older demo `service_requests` table. The database user needs permission to create and alter tables. Alternatively, run `schema.sql` using a database user with those permissions.
+   ```bash
+   export DATABASE_URL='postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require'
+   php -S 127.0.0.1:8000
+   ```
 
-Set `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` and `PGPASSWORD` instead if your host does not provide `DATABASE_URL`.
+   Open `http://127.0.0.1:8000` on the server, or use an SSH tunnel to view it from your computer. The PHP built-in server is for testing only. For a public site, configure Apache or Nginx with PHP-FPM and HTTPS, and set `DATABASE_URL` in the server configuration, not in this repository.
 
-**Demo only:** Use sample details, not real citizen ID, health or payment information. This is not an official county system and is not ready for public deployment.
+The app initializes the account and request tables on first use. The database user needs permission to create and alter tables and create an index. Alternatively, run `schema.sql` in Neon before opening the site.
+
+Keep the Neon password out of Git. It was shared in chat, so rotate it before using the database.
+
+**Demo only:** Use sample details, not real citizen ID, health, or payment information. This is not an official county system and is not ready for public deployment.
