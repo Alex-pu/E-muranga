@@ -5,7 +5,7 @@ require __DIR__ . '/config.php';
 startAppSession();
 
 if (isset($_SESSION['user'])) {
-    header('Location: dashboard.php');
+    header('Location: ' . (($_SESSION['user']['role'] ?? 'citizen') === 'admin' ? 'admin.php' : 'dashboard.php'));
     exit;
 }
 
@@ -48,13 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($error === null) {
             try {
                 $pdo = database();
-                ensureRequestTable($pdo);
 
                 if ($isSignup) {
                     $statement = $pdo->prepare(
                         'INSERT INTO app_users (full_name, email, phone, password_hash)
                          VALUES (:full_name, :email, :phone, :password_hash)
-                         RETURNING id, full_name, email, phone'
+                         RETURNING id, full_name, email, phone, role'
                     );
                     $statement->execute([
                         'full_name' => $name,
@@ -70,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $statement = $pdo->prepare(
-                    'SELECT id, full_name, email, phone, password_hash
+                    'SELECT id, full_name, email, phone, password_hash, role
                      FROM app_users WHERE email = :email'
                 );
                 $statement->execute(['email' => $email]);
@@ -83,17 +82,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     unset($user['password_hash']);
                     $_SESSION['user'] = $user;
                     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-                    header('Location: dashboard.php');
+                    header('Location: ' . ($user['role'] === 'admin' ? 'admin.php' : 'dashboard.php'));
                     exit;
                 }
             } catch (PDOException $exception) {
                 error_log('eMuranga account error: ' . $exception->getMessage());
                 $error = $isSignup && $exception->getCode() === '23505'
                     ? 'An account with that email already exists. Try signing in instead.'
-                    : 'We could not connect to the service desk. Check DATABASE_URL and try again.';
+                    : 'We could not connect to the service desk. Check the local PostgreSQL service and try again.';
             } catch (RuntimeException $exception) {
                 error_log('eMuranga account error: ' . $exception->getMessage());
-                $error = 'We could not connect to the service desk. Check DATABASE_URL and try again.';
+                $error = 'We could not connect to the service desk. Check the local PostgreSQL service and try again.';
             }
         }
     }
@@ -126,17 +125,17 @@ unset($_SESSION['flash']);
 </header>
 <main class="auth-layout">
     <section class="auth-welcome">
-        <div class="eyebrow"><span class="live-dot"></span> MURANG'A COUNTY · YOUR SERVICE DESK</div>
-        <h1>Your county,<br>closer to <span>you.</span></h1>
-        <p>One account to request services and keep track of what you've sent.</p>
+        <div class="eyebrow"><span class="live-dot"></span> MURANG'A COUNTY · COMMUNITY SERVICE DESK</div>
+        <h1>Speak up for<br>your <span>community.</span></h1>
+        <p>Report a local issue and follow it from the first update to resolution.</p>
         <div class="auth-benefits">
-            <div><span>✓</span> Request county services in one place</div>
-            <div><span>✓</span> Keep your submissions together</div>
-            <div><span>✓</span> Check your request status any time</div>
+            <div><span>✓</span> Report a local public-service issue</div>
+            <div><span>✓</span> Attach a photo and precise location</div>
+            <div><span>✓</span> Track your report status</div>
         </div>
     </section>
     <section class="auth-card">
-        <div class="section-kicker">YOUR SERVICE DESK ACCOUNT</div>
+        <div class="section-kicker">YOUR COMMUNITY SERVICE DESK</div>
         <h2><?= $isSignup ? 'Create your account' : 'Welcome back' ?></h2>
         <p class="form-intro"><?= $isSignup ? 'A few details to get you started.' : 'Sign in to see your services and requests.' ?></p>
         <?php if ($flash): ?>
@@ -162,12 +161,12 @@ unset($_SESSION['flash']);
             <?= $isSignup ? 'Already have an account?' : "Don't have an account?" ?>
             <a href="auth.php?mode=<?= $isSignup ? 'login' : 'signup' ?>"><?= $isSignup ? 'Sign in' : 'Sign up' ?></a>
         </p>
-        <p class="demo-disclaimer">Independent demo concept; not an official county or eCitizen website. Use sample details only.</p>
+        <p class="demo-disclaimer">Independent internship demo, not an official county website. Use sample details only.</p>
     </section>
 </main>
 <footer id="about">
     <a class="brand footer-brand" href="auth.php"><span class="brand-mark"><span></span><span></span><span></span></span><span>e<span class="brand-light">Muranga</span><small>COUNTY SERVICES</small></span></a>
-    <p>Independent demo concept; not an official county or eCitizen website.</p>
+    <p>Independent public-service demo; not an official county website.</p>
     <span class="footer-credit">Made by <strong>Alex Kamau</strong> <span>·</span> Internship project</span>
 </footer>
 </body>
