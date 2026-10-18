@@ -219,11 +219,53 @@ footer > p { margin: 0 auto 0 0; color: #89968e; font-size: 10px; }
 .demo-disclaimer { margin: 18px 0 0; color: #98a29b; font-size: 9px; line-height: 1.6; text-align: center; }
 .auth-page footer { background: white; }
 
+.parking-section { padding-top: 40px; }
+.parking-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 16px; align-items: start; }
+.parking-grid .request-panel,.parking-grid .requests-panel { min-width: 0; }
+.parking-grid .request-panel h2 { margin-top: 7px; }
+.parking-grid .form-intro { line-height: 1.65; }
+.parking-disclaimer { margin: 15px 0 0; color: #929d95; font-size: 10px; line-height: 1.55; }
+.parking-payment-list { margin-top: 18px; }
+.parking-payment { padding: 13px 0; border-bottom: 1px solid #edf0ed; }
+.parking-payment:first-child { padding-top: 0; }
+.parking-payment-detail { margin: 8px 0 4px; color: #718078; font-size: 10px; line-height: 1.55; }
+.status-expired { background: #f1f1ef; color: #777c77; }
+.status-review { background: #fff3dd; color: #986c25; }
+.parking-grid button:disabled { cursor: not-allowed; opacity: .6; }
+.sticker-page { min-height: 100vh; padding: 36px 18px; background: var(--wash); }
+.sticker-wrap { width: min(720px, 100%); margin: 0 auto; }
+.sticker-actions { margin-bottom: 17px; display: flex; align-items: center; justify-content: space-between; }
+.parking-sticker { padding: 28px; border: 1px solid #dfe8e1; border-radius: 12px; background: white; box-shadow: 0 14px 40px #27442e0b; }
+.sticker-header { padding-bottom: 19px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--line); }
+.sticker-header img { width: 110px; height: 53px; object-fit: contain; }
+.sticker-header span,.sticker-header strong { display: block; }
+.sticker-header span { margin-bottom: 5px; color: #829087; font-size: 9px; font-weight: 700; letter-spacing: 1.2px; }
+.sticker-header strong { color: var(--green-dark); font: 800 16px Manrope, sans-serif; }
+.sticker-validity { margin: 19px 0; padding: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-radius: 7px; background: #eaf5ec; color: #356c46; }
+.sticker-validity strong { font-size: 11px; letter-spacing: .6px; }
+.sticker-validity span { font-size: 11px; }
+.sticker-expired { background: #f1f1ef; color: #777c77; }
+.sticker-vehicle { padding: 16px; border: 2px solid #dce9de; border-radius: 8px; text-align: center; }
+.sticker-vehicle small,.sticker-vehicle strong { display: block; }
+.sticker-vehicle small { color: #849188; font-size: 9px; font-weight: 700; letter-spacing: 1.4px; }
+.sticker-vehicle strong { margin-top: 7px; color: var(--green-dark); font: 800 30px Manrope, sans-serif; letter-spacing: 2px; }
+.sticker-details { margin: 17px 0 0; }
+.sticker-details > div { padding: 9px 0; display: flex; justify-content: space-between; gap: 15px; border-bottom: 1px solid #edf0ed; font-size: 11px; }
+.sticker-details dt { color: #78867d; }
+.sticker-details dd { margin: 0; color: #34483d; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+.sticker-note { margin: 15px 0; color: #718078; font-size: 10px; line-height: 1.6; }
+.parking-sticker footer { min-height: 0; padding: 12px 0 0; justify-content: center; color: #929d95; font-size: 9px; text-align: center; }
+@media print {
+    .sticker-page { padding: 0; background: white; }
+    .sticker-actions { display: none; }
+    .parking-sticker { max-width: 100%; border: 1px solid #aab9ad; box-shadow: none; }
+}
 @media (max-width: 700px) {
     .account-nav { gap: 8px; }.account-greeting { display: none; }.logout-button { padding: 7px 9px; }
     .dashboard-hero { min-height: 180px; padding: 33px 6%; gap: 10px; }.dashboard-hero h1 { font-size: 36px; }.dashboard-hero .primary-button { min-height: 39px; padding: 0 11px; gap: 8px; font-size: 11px; }
     .stats-grid { width: 88%; gap: 7px; }.stat-card { min-height: 83px; padding: 9px; gap: 7px; }.stat-icon { width: 29px; height: 29px; }.stat-card > div { display: flex; flex-direction: column; align-items: start; }.stat-label { font-size: 7px; }.stat-card strong { font-size: 20px; }.stat-card small { font-size: 8px; }
     .dashboard-services { padding-top: 31px; }.section-aside { max-width: 130px; font-size: 9px; text-align: right; }
     .dashboard-notice { width: 88%; }
+    .parking-grid { grid-template-columns: 1fr; gap: 12px; }
     .auth-layout { width: 88%; min-height: auto; padding: 35px 0 42px; grid-template-columns: 1fr; gap: 24px; }.auth-welcome { min-height: 390px; padding: 25px; }.auth-welcome h1 { margin: 15px 0 9px; font-size: 42px; }.auth-welcome > p { margin-bottom: 0; font-size: 12px; }.auth-benefits { display: none; }.auth-card { padding: 22px; }
 }

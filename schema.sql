@@ -79,4 +79,29 @@ CREATE TABLE IF NOT EXISTS request_status_history (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS parking_payments (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
+    vehicle_registration VARCHAR(12) NOT NULL,
+    phone VARCHAR(12) NOT NULL,
+    amount INTEGER NOT NULL CHECK (amount > 0),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'paid', 'failed', 'review')),
+    merchant_request_id VARCHAR(100),
+    checkout_request_id VARCHAR(100) UNIQUE,
+    mpesa_receipt_number VARCHAR(30) UNIQUE,
+    result_code INTEGER,
+    result_description VARCHAR(255) NOT NULL DEFAULT '',
+    paid_at TIMESTAMPTZ,
+    valid_from TIMESTAMPTZ,
+    valid_until TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS parking_payments_user_created_idx
+    ON parking_payments (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS parking_payments_vehicle_valid_idx
+    ON parking_payments (vehicle_registration, valid_until DESC)
+    WHERE status = 'paid';
+
 COMMIT;

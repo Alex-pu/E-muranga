@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/config.php';
+require __DIR__ . '/daraja.php';
 startAppSession();
 $user = requireLogin();
 if (($user['role'] ?? 'citizen') === 'admin') {
@@ -12,10 +12,14 @@ if (($user['role'] ?? 'citizen') === 'admin') {
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 $requests = [];
+$parkingPayments = [];
+$parkingFee = 1;
+$parkingConfigured = darajaIsConfigured();
 $stats = ['total' => 0, 'open' => 0, 'resolved' => 0];
 $databaseError = null;
 
 try {
+    $parkingFee = parkingMonthlyFee();
     $pdo = database();
     $statement = $pdo->prepare(
         "SELECT COUNT(*) AS total,
@@ -33,6 +37,15 @@ try {
     );
     $statement->execute(['user_id' => $user['id']]);
     $requests = $statement->fetchAll();
+
+    $statement = $pdo->prepare(
+        'SELECT id, vehicle_registration, phone, amount, status, result_description,
+                mpesa_receipt_number, valid_from, valid_until, created_at
+         FROM parking_payments WHERE user_id = :user_id
+         ORDER BY created_at DESC LIMIT 20'
+    );
+    $statement->execute(['user_id' => $user['id']]);
+    $parkingPayments = $statement->fetchAll();
 } catch (RuntimeException $exception) {
     error_log('eMuranga citizen dashboard error: ' . $exception->getMessage());
     $databaseError = 'We could not load your requests. Check the database connection and refresh.';
@@ -50,7 +63,7 @@ $csrfToken = csrfToken();
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20261017-2">
+    <link rel="stylesheet" href="style.css?v=20261018-1">
 </head>
 <body>
 <header class="topbar">
@@ -60,6 +73,7 @@ $csrfToken = csrfToken();
     </a>
     <nav class="desktop-nav" aria-label="Main navigation">
         <a class="active" href="#new-request">Report an issue</a>
+        <a href="#parking">Parking</a>
         <a href="#requests">My requests</a>
     </nav>
     <div class="account-nav">
@@ -97,6 +111,72 @@ $csrfToken = csrfToken();
         <article class="stat-card"><span class="stat-icon">▤</span><div><span class="stat-label">MY REPORTS</span><strong><?= number_format((int) $stats['total']) ?></strong><small>All reports</small></div></article>
         <article class="stat-card"><span class="stat-icon stat-icon-gold">◷</span><div><span class="stat-label">OPEN</span><strong><?= number_format((int) $stats['open']) ?></strong><small>Being handled</small></div></article>
         <article class="stat-card"><span class="stat-icon stat-icon-blue">✓</span><div><span class="stat-label">RESOLVED</span><strong><?= number_format((int) $stats['resolved']) ?></strong><small>Issues closed</small></div></article>
+    </section>
+
+    <section class="content-section parking-section" id="parking">
+        <div class="section-heading">
+            <div><div class="section-kicker">MONTHLY PARKING</div><h2>Pay and get your sticker</h2></div>
+            <a class="text-link" href="#parking-history">Payment history <span>↓</span></a>
+        </div>
+        <div class="parking-grid">
+            <div class="request-panel">
+                <p class="form-intro">Pay KSh <?= number_format($parkingFee) ?> for one month. We’ll send an M-Pesa prompt to your phone and issue a printable sticker after payment is confirmed.</p>
+                <?php if ($parkingConfigured): ?>
+                    <form action="start_parking_payment.php" method="post">
+                        <input type="hidden" name="csrf_token" value="<?= escape($csrfToken) ?>">
+                        <label>Vehicle registration<input name="vehicle_registration" maxlength="12" placeholder="e.g. KDA 123A" autocomplete="off" required></label>
+                        <label>M-Pesa phone number<input name="phone" type="tel" maxlength="20" value="<?= escape($user['phone']) ?>" placeholder="07XX XXX XXX or 2547XX XXX XXX" autocomplete="tel" required></label>
+                        <button class="primary-button submit-button" type="submit">Pay KSh <?= number_format($parkingFee) ?> with M-Pesa <span>→</span></button>
+                    </form>
+                <?php else: ?>
+                    <div class="notice notice-error" role="status">M-Pesa is not configured yet. Add Daraja credentials and the public HTTPS callback URL to the private app environment file to enable parking payments.</div>
+                <?php endif; ?>
+                <p class="parking-disclaimer">Demo feature only. A sticker is valid only for the dates printed on it and is not an official county permit.</p>
+            </div>
+            <aside class="requests-panel parking-history" id="parking-history">
+                <div class="section-kicker">YOUR VEHICLES</div>
+                <h2>Parking payments</h2>
+                <p class="form-intro">Refresh this page after approving an M-Pesa prompt to see confirmation.</p>
+                <?php if ($parkingPayments): ?>
+                    <div class="parking-payment-list">
+                        <?php foreach ($parkingPayments as $payment): ?>
+                            <?php
+                            $paymentStatus = $payment['status'];
+                            if ($paymentStatus === 'paid' && strtotime($payment['valid_until']) <= time()) {
+                                $paymentLabel = 'Expired';
+                                $paymentStatus = 'expired';
+                            } else {
+                                $paymentLabel = match ($paymentStatus) {
+                                    'paid' => 'Paid · valid',
+                                    'pending' => 'Awaiting payment',
+                                    'review' => 'Needs review',
+                                    default => 'Not paid',
+                                };
+                            }
+                            ?>
+                            <article class="parking-payment">
+                                <div class="case-heading">
+                                    <div><strong><?= escape($payment['vehicle_registration']) ?></strong><small><?= date('M j, Y', strtotime($payment['created_at'])) ?> · KSh <?= number_format((int) $payment['amount']) ?></small></div>
+                                    <span class="status status-<?= escape($paymentStatus) ?>"><?= escape($paymentLabel) ?></span>
+                                </div>
+                                <?php if ($payment['status'] === 'paid'): ?>
+                                    <p class="parking-payment-detail">Valid <?= date('M j, Y', strtotime($payment['valid_from'])) ?> – <?= date('M j, Y', strtotime($payment['valid_until'])) ?> · Receipt <?= escape((string) $payment['mpesa_receipt_number']) ?></p>
+                                    <a class="case-image-link" href="parking_sticker.php?id=<?= (int) $payment['id'] ?>" target="_blank" rel="noopener">View / print sticker →</a>
+                                <?php elseif ($payment['status'] === 'pending'): ?>
+                                    <p class="parking-payment-detail">Approve the M-Pesa prompt, then refresh to check the result.</p>
+                                <?php elseif ($payment['status'] === 'review'): ?>
+                                    <p class="parking-payment-detail"><?= escape($payment['result_description']) ?> Contact the service desk with any M-Pesa receipt before paying again.</p>
+                                <?php else: ?>
+                                    <p class="parking-payment-detail"><?= escape($payment['result_description'] ?: 'Payment was not completed.') ?> You can try again.</p>
+                                <?php endif; ?>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="empty-state"><span>▤</span><strong>No parking payments yet</strong><p>Start a payment to request a monthly sticker.</p></div>
+                <?php endif; ?>
+            </aside>
+        </div>
     </section>
 
     <section class="content-section dashboard-services" id="services">
