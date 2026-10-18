@@ -82,20 +82,33 @@ try {
 } catch (RuntimeException $exception) {
     if ($paymentId !== null && isset($pdo) && $pdo instanceof PDO) {
         try {
+            $confirmedRejection = $exception instanceof DarajaRequestException && !$exception->outcomeUncertain;
+            $failedStatus = $confirmedRejection ? 'failed' : 'review';
+            $failureDescription = $confirmedRejection
+                ? substr($exception->getMessage(), 0, 255)
+                : 'The M-Pesa request outcome could not be confirmed.';
             $statement = $pdo->prepare(
-                "UPDATE parking_payments
-                 SET status = 'review', result_description = 'The M-Pesa request outcome could not be confirmed.'
-                 WHERE id = :id AND status = 'pending' AND checkout_request_id IS NULL"
+                'UPDATE parking_payments
+                 SET status = :status, result_description = :result_description
+                 WHERE id = :id AND status = \'pending\' AND checkout_request_id IS NULL'
             );
-            $statement->execute(['id' => $paymentId]);
+            $statement->execute([
+                'status' => $failedStatus,
+                'result_description' => $failureDescription,
+                'id' => $paymentId,
+            ]);
         } catch (PDOException $updateException) {
             error_log('eMuranga could not update a failed parking payment request: ' . $updateException->getMessage());
         }
     }
     error_log('eMuranga parking payment request error: ' . $exception->getMessage());
-    $failureMessage = $paymentId === null
-        ? 'We could not start the M-Pesa payment. Check the Daraja configuration and try again.'
-        : 'We could not confirm whether the M-Pesa request reached Safaricom. Check your M-Pesa messages and payment history; contact the service desk before trying again.';
+    if ($exception instanceof DarajaRequestException && !$exception->outcomeUncertain) {
+        $failureMessage = 'M-Pesa could not start the payment: ' . $exception->getMessage();
+    } elseif ($paymentId === null) {
+        $failureMessage = 'We could not start the M-Pesa payment. Check the Daraja configuration and try again.';
+    } else {
+        $failureMessage = 'We could not confirm whether the M-Pesa request reached Safaricom. Check your M-Pesa messages and payment history; contact the service desk before trying again.';
+    }
     redirectWithMessage(
         'error',
         $failureMessage,

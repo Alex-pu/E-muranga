@@ -28,18 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($isSignup) {
             $name = trim((string) ($_POST['full_name'] ?? ''));
-            $phone = trim((string) ($_POST['phone'] ?? ''));
+            $submittedPhone = trim((string) ($_POST['phone'] ?? ''));
+            $phone = normalizeKenyanPhone($submittedPhone) ?? '';
             if (
                 $name === ''
                 || strlen($name) > 120
                 || !filter_var($email, FILTER_VALIDATE_EMAIL)
                 || strlen($email) > 254
                 || $phone === ''
-                || strlen($phone) > 30
                 || strlen($password) < 8
                 || strlen($password) > 4096
             ) {
-                $error = 'Enter a name, valid email, phone number and password with at least 8 characters.';
+                $error = 'Enter a name, valid email, Kenyan mobile number (07..., 01..., or 254...), and password with at least 8 characters.';
             }
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '' || strlen($password) > 4096) {
             $error = 'Enter a valid email and your password.';
@@ -159,7 +159,7 @@ unset($_SESSION['flash']);
             <?php endif; ?>
             <label>Email address<input name="email" type="email" autocomplete="email" maxlength="254" value="<?= escape($email) ?>" placeholder="you@example.com" required></label>
             <?php if ($isSignup): ?>
-                <label>Phone number<input name="phone" type="tel" autocomplete="tel" maxlength="30" value="<?= escape($phone) ?>" placeholder="+254 7XX XXX XXX" required></label>
+                <label>Phone number<input name="phone" type="tel" autocomplete="tel" maxlength="30" value="<?= escape($isSignup ? ($submittedPhone ?? $phone) : $phone) ?>" placeholder="07XX XXX XXX or +254 7XX XXX XXX" required></label>
             <?php endif; ?>
             <label>Password<input name="password" type="password" autocomplete="<?= $isSignup ? 'new-password' : 'current-password' ?>" minlength="<?= $isSignup ? '8' : '1' ?>" required></label>
             <button class="primary-button submit-button auth-submit" type="submit"><?= $isSignup ? 'Create account' : 'Sign in' ?><span>→</span></button>

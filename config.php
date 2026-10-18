@@ -63,6 +63,32 @@ function csrfToken(): string
     return $_SESSION['csrf_token'] ??= bin2hex(random_bytes(32));
 }
 
+function normalizeKenyanPhone(string $phone): ?string
+{
+    $digits = preg_replace('/[\s()+-]/', '', $phone);
+    if (!is_string($digits)) {
+        return null;
+    }
+    if (preg_match('/\A0([17]\d{8})\z/', $digits, $matches)) {
+        return '254' . $matches[1];
+    }
+    if (preg_match('/\A254[17]\d{8}\z/', $digits)) {
+        return $digits;
+    }
+
+    return null;
+}
+
+function formatKenyanPhone(string $phone): string
+{
+    $normalized = normalizeKenyanPhone($phone);
+    if ($normalized === null) {
+        return '';
+    }
+
+    return '+254 ' . substr($normalized, 3, 3) . ' ' . substr($normalized, 6, 3) . ' ' . substr($normalized, 9, 3);
+}
+
 function requireLogin(): array
 {
     $user = $_SESSION['user'] ?? null;

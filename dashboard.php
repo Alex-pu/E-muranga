@@ -127,7 +127,7 @@ $csrfToken = csrfToken();
                         <label>Vehicle registration<input name="vehicle_registration" maxlength="12" placeholder="e.g. KDA 123A" autocomplete="off" required></label>
                         <label>Parking stage<input name="parking_stage" maxlength="100" placeholder="Stage or parking area" required></label>
                         <label>Ward<input name="ward" maxlength="100" placeholder="Ward name" required></label>
-                        <label>M-Pesa phone number<input name="phone" type="tel" maxlength="20" value="<?= escape($user['phone']) ?>" placeholder="07XX XXX XXX or 2547XX XXX XXX" autocomplete="tel" required></label>
+                        <label>M-Pesa phone number<input name="phone" type="tel" maxlength="20" value="<?= escape(formatKenyanPhone($user['phone'])) ?>" placeholder="07XX XXX XXX or +254 7XX XXX XXX" autocomplete="tel" required></label>
                         <button class="primary-button submit-button" type="submit">Pay KSh <?= number_format($parkingFee) ?> with M-Pesa <span>→</span></button>
                     </form>
                 <?php else: ?>
@@ -231,7 +231,7 @@ $csrfToken = csrfToken();
                 <label>Location<input name="location" maxlength="200" placeholder="Estate, road, landmark or ward" required></label>
                 <label>Describe the issue<textarea name="description" rows="4" maxlength="3000" placeholder="What happened? When did you notice it?" required></textarea></label>
                 <label>Photo <span class="optional">(optional · JPG, PNG or WebP · max 5 MB)</span><input class="file-input" type="file" name="image" accept="image/jpeg,image/png,image/webp"></label>
-                <label>Contact phone<input name="phone" type="tel" autocomplete="tel" maxlength="30" value="<?= escape($user['phone']) ?>" required></label>
+                <label>Contact phone<input name="phone" type="tel" autocomplete="tel" maxlength="30" value="<?= escape(formatKenyanPhone($user['phone'])) ?>" placeholder="07XX XXX XXX or +254 7XX XXX XXX" required></label>
                 <button class="primary-button submit-button" type="submit">Submit report <span>→</span></button>
                 <p class="privacy-note">Use sample information for this internship demonstration.</p>
             </form>

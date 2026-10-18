@@ -3,6 +3,14 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
 
+final class DarajaRequestException extends RuntimeException
+{
+    public function __construct(string $message, public readonly bool $outcomeUncertain = false)
+    {
+        parent::__construct($message);
+    }
+}
+
 function darajaConfiguration(): array
 {
     $environment = getenv('EMURANGA_DARAJA_ENV') ?: 'sandbox';
@@ -75,30 +83,14 @@ function parkingMonthlyFee(): int
     return $fee;
 }
 
-function normalizeKenyanPhone(string $phone): ?string
-{
-    $digits = preg_replace('/[\s()+-]/', '', $phone);
-    if (!is_string($digits)) {
-        return null;
-    }
-    if (preg_match('/\A0([17]\d{8})\z/', $digits, $matches)) {
-        return '254' . $matches[1];
-    }
-    if (preg_match('/\A254[17]\d{8}\z/', $digits)) {
-        return $digits;
-    }
-
-    return null;
-}
-
 function darajaApiRequest(string $url, array $headers, ?array $payload = null, ?array $basicAuth = null): array
 {
     if (!function_exists('curl_init')) {
-        throw new RuntimeException('The PHP cURL extension is required for Daraja payments.');
+        throw new DarajaRequestException('The PHP cURL extension is required for Daraja payments.');
     }
     $handle = curl_init($url);
     if ($handle === false) {
-        throw new RuntimeException('Could not initialize the Daraja connection.');
+        throw new DarajaRequestException('Could not initialize the Daraja connection.');
     }
 
     $options = [
@@ -121,7 +113,7 @@ function darajaApiRequest(string $url, array $headers, ?array $payload = null, ?
     }
     if (!curl_setopt_array($handle, $options)) {
         curl_close($handle);
-        throw new RuntimeException('Could not configure the Daraja connection.');
+        throw new DarajaRequestException('Could not configure the Daraja connection.');
     }
 
     $body = curl_exec($handle);
@@ -130,21 +122,49 @@ function darajaApiRequest(string $url, array $headers, ?array $payload = null, ?
     curl_close($handle);
     if (!is_string($body)) {
         error_log('eMuranga Daraja transport error: ' . $curlError);
-        throw new RuntimeException('Daraja could not be reached.');
+        throw new DarajaRequestException(
+            'Daraja could not be reached. Check the server connection and try again.',
+            $payload !== null
+        );
     }
     if ($httpStatus < 200 || $httpStatus >= 300) {
         error_log('eMuranga Daraja returned HTTP ' . $httpStatus . '.');
-        throw new RuntimeException('Daraja rejected the request (HTTP ' . $httpStatus . ').');
+        $providerMessage = null;
+        try {
+            $errorResponse = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+            if (is_array($errorResponse)) {
+                foreach (['errorMessage', 'ResponseDescription', 'CustomerMessage', 'error'] as $key) {
+                    if (is_string($errorResponse[$key] ?? null) && $errorResponse[$key] !== '') {
+                        $providerMessage = $errorResponse[$key];
+                        break;
+                    }
+                }
+            }
+        } catch (JsonException) {
+            $providerMessage = null;
+        }
+        if ($providerMessage !== null) {
+            $providerMessage = preg_replace('/[\x00-\x1F\x7F]/', ' ', $providerMessage) ?? '';
+            $providerMessage = trim(substr($providerMessage, 0, 180));
+        }
+        $message = 'Daraja rejected the request (HTTP ' . $httpStatus . ').';
+        if ($providerMessage !== null && $providerMessage !== '') {
+            $message .= ' ' . $providerMessage;
+        }
+        throw new DarajaRequestException($message);
     }
 
     try {
         $response = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
     } catch (JsonException $exception) {
         error_log('eMuranga Daraja returned an invalid JSON response.');
-        throw new RuntimeException('Daraja returned an invalid response.', 0, $exception);
+        throw new DarajaRequestException(
+            'Daraja returned an invalid response.',
+            $payload !== null
+        );
     }
     if (!is_array($response)) {
-        throw new RuntimeException('Daraja returned an invalid response.');
+        throw new DarajaRequestException('Daraja returned an invalid response.', $payload !== null);
     }
 
     return $response;
@@ -198,8 +218,14 @@ function darajaStartStkPush(array $config, string $phone, string $registration, 
         || $response['CheckoutRequestID'] === ''
         || strlen($response['CheckoutRequestID']) > 100
     ) {
-        error_log('eMuranga Daraja STK Push was not accepted.');
-        throw new RuntimeException('Daraja did not accept the M-Pesa payment request.');
+        $reason = is_string($response['ResponseDescription'] ?? null)
+            ? preg_replace('/[\x00-\x1F\x7F]/', ' ', $response['ResponseDescription'])
+            : null;
+        $reason = is_string($reason) ? trim(substr($reason, 0, 180)) : '';
+        error_log('eMuranga Daraja STK Push was not accepted: ' . ($reason !== '' ? $reason : 'no description'));
+        throw new DarajaRequestException(
+            $reason !== '' ? 'Daraja did not accept the M-Pesa request: ' . $reason : 'Daraja did not accept the M-Pesa payment request.'
+        );
     }
 
     return $response;

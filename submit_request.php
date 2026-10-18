@@ -18,15 +18,15 @@ if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $su
 $category = trim((string) ($_POST['category'] ?? ''));
 $location = trim((string) ($_POST['location'] ?? ''));
 $description = trim((string) ($_POST['description'] ?? ''));
-$phone = trim((string) ($_POST['phone'] ?? $user['phone']));
+$phone = normalizeKenyanPhone(trim((string) ($_POST['phone'] ?? $user['phone'])));
 $categories = requestCategories();
 $imagePath = null;
 $savedPath = null;
 
-if (!in_array($category, $categories, true) || $location === '' || $description === '' || $phone === '') {
-    redirectWithMessage('error', 'Choose a category and complete the location, description and contact phone.', 'dashboard.php#new-request');
+if (!in_array($category, $categories, true) || $location === '' || $description === '' || $phone === null) {
+    redirectWithMessage('error', 'Choose a category and complete the location, description and a valid Kenyan mobile contact number.', 'dashboard.php#new-request');
 }
-if (strlen($location) > 200 || strlen($description) > 3000 || strlen($phone) > 30) {
+if (strlen($location) > 200 || strlen($description) > 3000) {
     redirectWithMessage('error', 'One or more fields are too long. Please check your details and try again.', 'dashboard.php#new-request');
 }
 

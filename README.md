@@ -55,6 +55,8 @@ to use live credentials and a publicly reachable HTTPS hostname. Generate a call
 privately (for example, `openssl rand -hex 32`); never commit credentials or the token.
 The callback URL is built from `EMURANGA_PUBLIC_URL` and the private token. `EMURANGA_PARKING_MONTHLY_FEE`
 defaults to KSh 1 for this demo and can be changed to the approved fee.
+Kenyan mobile inputs accept `07...`, `01...`, `254...`, or `+254...`; the app normalizes
+them to the Daraja-required `254...` format before sending payment requests.
 
 The parking flow sends an STK Push to the supplied Kenyan mobile number. A sticker is issued
 only after the Daraja callback confirms the amount, phone number, and M-Pesa receipt. The
