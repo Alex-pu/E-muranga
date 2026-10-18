@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS parking_payments (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
     vehicle_registration VARCHAR(12) NOT NULL,
+    parking_stage VARCHAR(100) NOT NULL DEFAULT '',
+    ward VARCHAR(100) NOT NULL DEFAULT '',
     phone VARCHAR(12) NOT NULL,
     amount INTEGER NOT NULL CHECK (amount > 0),
     status VARCHAR(20) NOT NULL DEFAULT 'pending'
@@ -97,6 +99,10 @@ CREATE TABLE IF NOT EXISTS parking_payments (
     valid_until TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE parking_payments
+    ADD COLUMN IF NOT EXISTS parking_stage VARCHAR(100) NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS ward VARCHAR(100) NOT NULL DEFAULT '';
 
 CREATE INDEX IF NOT EXISTS parking_payments_user_created_idx
     ON parking_payments (user_id, created_at DESC);

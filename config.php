@@ -181,6 +181,8 @@ function migrateDatabase(PDO $pdo): void
             id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
             vehicle_registration VARCHAR(12) NOT NULL,
+            parking_stage VARCHAR(100) NOT NULL DEFAULT \'\',
+            ward VARCHAR(100) NOT NULL DEFAULT \'\',
             phone VARCHAR(12) NOT NULL,
             amount INTEGER NOT NULL CHECK (amount > 0),
             status VARCHAR(20) NOT NULL DEFAULT \'pending\'
@@ -196,6 +198,8 @@ function migrateDatabase(PDO $pdo): void
             created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
         )'
     );
+    $pdo->exec("ALTER TABLE parking_payments ADD COLUMN IF NOT EXISTS parking_stage VARCHAR(100) NOT NULL DEFAULT ''");
+    $pdo->exec("ALTER TABLE parking_payments ADD COLUMN IF NOT EXISTS ward VARCHAR(100) NOT NULL DEFAULT ''");
     $pdo->exec('CREATE INDEX IF NOT EXISTS parking_payments_user_created_idx ON parking_payments (user_id, created_at DESC)');
     $pdo->exec("CREATE INDEX IF NOT EXISTS parking_payments_vehicle_valid_idx ON parking_payments (vehicle_registration, valid_until DESC) WHERE status = 'paid'");
 }

@@ -7,7 +7,7 @@ I built this PHP and PostgreSQL app as a community service-request demo.
 - Citizen registration, sign-in, and private request history.
 - Report a local issue with its category, location, description, and optional photo.
 - Track requests through Pending, In Progress, and Resolved.
-- Request a monthly parking sticker using an M-Pesa STK Push; paid stickers are printable from the citizen dashboard.
+- Request a monthly parking sticker using an M-Pesa STK Push; confirmed payments provide a downloadable PDF sticker with the vehicle, parking stage, ward, and validity dates.
 - Staff dashboard with filters, analytics, and status-change history.
 - Emergency-call UI mockup for a proposed free internet call without airtime. It does not place calls or connect to emergency services.
 - County logo and community, roads, and water imagery in `assets/`.
@@ -58,7 +58,10 @@ defaults to KSh 1 for this demo and can be changed to the approved fee.
 
 The parking flow sends an STK Push to the supplied Kenyan mobile number. A sticker is issued
 only after the Daraja callback confirms the amount, phone number, and M-Pesa receipt. The
-callback endpoint must be reachable over HTTPS from Safaricom/Daraja. Failed or inconsistent
+sticker PDF is generated on demand from confirmed payment details and can be downloaded from
+the citizen dashboard. A payment awaiting its callback refreshes the dashboard automatically for
+up to three minutes. The checkout form also records the parking stage and ward for the sticker.
+The callback endpoint must be reachable over HTTPS from Safaricom/Daraja. Failed or inconsistent
 callbacks do not produce a sticker; review payments manually before taking any further action.
 Run `php bin/migrate.php` after updating the app.
 

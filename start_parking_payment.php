@@ -21,12 +21,24 @@ if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $su
 
 $registration = strtoupper(trim((string) ($_POST['vehicle_registration'] ?? '')));
 $registration = preg_replace('/\s+/', ' ', $registration) ?? '';
+$parkingStage = trim((string) ($_POST['parking_stage'] ?? ''));
+$parkingStage = preg_replace('/\s+/u', ' ', $parkingStage) ?? '';
+$ward = trim((string) ($_POST['ward'] ?? ''));
+$ward = preg_replace('/\s+/u', ' ', $ward) ?? '';
 $phone = normalizeKenyanPhone(trim((string) ($_POST['phone'] ?? '')));
 if (
     !preg_match('/\A(?=.*[A-Z])(?=.*\d)[A-Z0-9 -]{3,12}\z/', $registration)
+    || $parkingStage === ''
+    || preg_match('//u', $parkingStage) !== 1
+    || preg_match('/[\x00-\x1F\x7F]/', $parkingStage)
+    || strlen($parkingStage) > 100
+    || $ward === ''
+    || preg_match('//u', $ward) !== 1
+    || preg_match('/[\x00-\x1F\x7F]/', $ward)
+    || strlen($ward) > 100
     || $phone === null
 ) {
-    redirectWithMessage('error', 'Enter a valid vehicle registration and Kenyan M-Pesa phone number.', 'dashboard.php#parking');
+    redirectWithMessage('error', 'Enter the vehicle registration, parking stage, ward and a valid Kenyan M-Pesa phone number.', 'dashboard.php#parking');
 }
 
 $paymentId = null;
@@ -35,13 +47,15 @@ try {
     $amount = parkingMonthlyFee();
     $pdo = database();
     $statement = $pdo->prepare(
-        "INSERT INTO parking_payments (user_id, vehicle_registration, phone, amount)
-         VALUES (:user_id, :vehicle_registration, :phone, :amount)
+        "INSERT INTO parking_payments (user_id, vehicle_registration, parking_stage, ward, phone, amount)
+         VALUES (:user_id, :vehicle_registration, :parking_stage, :ward, :phone, :amount)
          RETURNING id"
     );
     $statement->execute([
         'user_id' => $user['id'],
         'vehicle_registration' => $registration,
+        'parking_stage' => $parkingStage,
+        'ward' => $ward,
         'phone' => $phone,
         'amount' => $amount,
     ]);

@@ -39,7 +39,7 @@ try {
     $requests = $statement->fetchAll();
 
     $statement = $pdo->prepare(
-        'SELECT id, vehicle_registration, phone, amount, status, result_description,
+        'SELECT id, vehicle_registration, parking_stage, ward, phone, amount, status, result_description,
                 mpesa_receipt_number, valid_from, valid_until, created_at
          FROM parking_payments WHERE user_id = :user_id
          ORDER BY created_at DESC LIMIT 20'
@@ -63,7 +63,7 @@ $csrfToken = csrfToken();
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20261018-1">
+    <link rel="stylesheet" href="style.css?v=20261018-3">
 </head>
 <body>
 <header class="topbar">
@@ -120,11 +120,13 @@ $csrfToken = csrfToken();
         </div>
         <div class="parking-grid">
             <div class="request-panel">
-                <p class="form-intro">Pay KSh <?= number_format($parkingFee) ?> for one month. We’ll send an M-Pesa prompt to your phone and issue a printable sticker after payment is confirmed.</p>
+                <p class="form-intro">Pay KSh <?= number_format($parkingFee) ?> for one month. We’ll send an M-Pesa prompt to your phone and generate a downloadable sticker after payment is confirmed.</p>
                 <?php if ($parkingConfigured): ?>
                     <form action="start_parking_payment.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= escape($csrfToken) ?>">
                         <label>Vehicle registration<input name="vehicle_registration" maxlength="12" placeholder="e.g. KDA 123A" autocomplete="off" required></label>
+                        <label>Parking stage<input name="parking_stage" maxlength="100" placeholder="Stage or parking area" required></label>
+                        <label>Ward<input name="ward" maxlength="100" placeholder="Ward name" required></label>
                         <label>M-Pesa phone number<input name="phone" type="tel" maxlength="20" value="<?= escape($user['phone']) ?>" placeholder="07XX XXX XXX or 2547XX XXX XXX" autocomplete="tel" required></label>
                         <button class="primary-button submit-button" type="submit">Pay KSh <?= number_format($parkingFee) ?> with M-Pesa <span>→</span></button>
                     </form>
@@ -160,8 +162,11 @@ $csrfToken = csrfToken();
                                     <span class="status status-<?= escape($paymentStatus) ?>"><?= escape($paymentLabel) ?></span>
                                 </div>
                                 <?php if ($payment['status'] === 'paid'): ?>
-                                    <p class="parking-payment-detail">Valid <?= date('M j, Y', strtotime($payment['valid_from'])) ?> – <?= date('M j, Y', strtotime($payment['valid_until'])) ?> · Receipt <?= escape((string) $payment['mpesa_receipt_number']) ?></p>
-                                    <a class="case-image-link" href="parking_sticker.php?id=<?= (int) $payment['id'] ?>" target="_blank" rel="noopener">View / print sticker →</a>
+                                    <p class="parking-payment-detail"><?= escape($payment['parking_stage']) ?> · <?= escape($payment['ward']) ?> · Valid <?= date('M j, Y', strtotime($payment['valid_from'])) ?> – <?= date('M j, Y', strtotime($payment['valid_until'])) ?> · Receipt <?= escape((string) $payment['mpesa_receipt_number']) ?></p>
+                                    <div class="sticker-link-group">
+                                        <a class="primary-button sticker-download-button" href="parking_sticker.php?id=<?= (int) $payment['id'] ?>&amp;download=1" download>Download sticker PDF <span>↓</span></a>
+                                        <a class="case-image-link" href="parking_sticker.php?id=<?= (int) $payment['id'] ?>" target="_blank" rel="noopener">Preview / print</a>
+                                    </div>
                                 <?php elseif ($payment['status'] === 'pending'): ?>
                                     <p class="parking-payment-detail">Approve the M-Pesa prompt, then refresh to check the result.</p>
                                 <?php elseif ($payment['status'] === 'review'): ?>
@@ -277,6 +282,17 @@ document.querySelector('input[type="file"]').addEventListener('change', (event) 
         alert('Choose an image that is 5 MB or smaller.');
     }
 });
+if (document.querySelector('.parking-payment .status-pending')) {
+    const startedAt = Number(sessionStorage.getItem('parking-payment-poll-start') || Date.now());
+    if (Date.now() - startedAt < 180000) {
+        sessionStorage.setItem('parking-payment-poll-start', String(startedAt));
+        window.setTimeout(() => window.location.reload(), 5000);
+    } else {
+        sessionStorage.removeItem('parking-payment-poll-start');
+    }
+} else {
+    sessionStorage.removeItem('parking-payment-poll-start');
+}
 </script>
 </body>
 </html>
